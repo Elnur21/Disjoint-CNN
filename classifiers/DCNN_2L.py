@@ -17,7 +17,7 @@ class Classifier_DCNN_2L:
         if verbose:
             self.model.summary()
 
-        self.model.save_weights(self.output_directory + 'model_init.h5')
+        # self.model.save_weights(self.output_directory + 'model_init.weights.h5')
 
     def build_model(self, input_shape, nb_classes):
 
@@ -56,7 +56,7 @@ class Classifier_DCNN_2L:
         self.model.compile(loss='categorical_crossentropy', optimizer=keras.optimizers.Adam(), metrics=['accuracy'])
         reduce_lr = keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=50,
                                                       min_lr=0.0001)
-        file_path = self.output_directory + 'best_model.h5'
+        file_path = self.output_directory + 'best_model.keras'
         model_checkpoint = keras.callbacks.ModelCheckpoint(filepath=file_path, monitor='val_loss',
                                                            save_best_only=True)
         self.callbacks = [reduce_lr, model_checkpoint]
@@ -76,7 +76,7 @@ class Classifier_DCNN_2L:
 
         self.duration = time.time() - start_time
 
-        keras.models.save_model(self.model, self.output_directory + 'model.h5')
+        keras.models.save_model(self.model, self.output_directory + 'model.keras')
         if self.verbose:
             print('[DCNN_2L] Training done!, took {}s'.format(self.duration))
         return
@@ -85,9 +85,9 @@ class Classifier_DCNN_2L:
         if self.verbose:
             print('[DCNN_2L] Predicting')
         if best:
-            model = keras.models.load_model(self.output_directory + 'best_model.h5')
+            model = keras.models.load_model(self.output_directory + 'best_model.keras')
         else:
-            model = keras.models.load_model(self.output_directory + 'model.h5')
+            model = keras.models.load_model(self.output_directory + 'model.keras')
 
         model_metrics, conf_mat, y_true, y_pred = predict_model(model, X_img, y_img, self.output_directory)
         save_logs(self.output_directory, self.hist, y_pred, y_true, self.duration)
