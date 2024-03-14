@@ -1,6 +1,6 @@
 import time
 from tensorflow import keras
-from tensorflow.keras.layers import Input, Conv2D, BatchNormalization, ELU, Reshape, Permute, MaxPooling2D
+from tensorflow.keras.layers import Input, Conv2D,SeparableConv2D, BatchNormalization, ELU, Reshape, Permute, MaxPooling2D
 from classifiers.classifiers import predict_model
 from utils.classifier_tools import create_class_weight
 from utils.tools import save_logs
@@ -23,7 +23,7 @@ class Classifier_Disjoint_CNN:
 
         X_input = Input(shape=input_shape)
 
- 	# Temporal Convolutions
+ 	    # Temporal Convolutions
         conv1 = Conv2D(64, (8, 1), strides=1, padding="same", kernel_initializer='he_uniform')(X_input)
         conv1 = BatchNormalization()(conv1)
         conv1 = ELU(alpha=1.0)(conv1)
