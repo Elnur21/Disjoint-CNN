@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 from utils.tools import create_directory
-from sktime.utils.load_data import load_from_tsfile_to_dataframe
+from sktime.datasets import load_from_tsfile_to_dataframe
 from utils.data_loader import process_ts_data
 
 pd.set_option('display.max_rows', 500)
@@ -102,7 +102,7 @@ Multivariate LSTM-FCN : 'MLSTM_FCN', Multi-Channel Deep CNN: 'MC_CNN'
 ALL_Results = pd.DataFrame()
 ALL_Results_list = []
 problem_index = 0
-data_path = os.getcwd() + '/Multivariate_ts/'
+data_path = os.getcwd() + '/multivariate_ts/'
 # Hyper-Parameter Setting ----------------------------------------------------------------------------------------------
 classifier_name = "DCNN_2L"  # Choose the classifier name from aforementioned List
 epochs = 500
