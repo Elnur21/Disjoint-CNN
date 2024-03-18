@@ -12,13 +12,8 @@ pd.set_option('display.max_columns', 500)
 
 def fit_classifier(all_labels, X_train, y_train, X_val=None, y_val=None, epochs=10, batch_size=16):
     nb_classes = len(np.unique(all_labels))
-    # Create Classifier --------------------------------------------------------
-    if classifier_name == "FCN" or classifier_name == "ResNet":
-        input_shape = (X_train.shape[1], X_train.shape[2])
-    elif classifier_name == "lstm_dcnn" or classifier_name == "MLSTM_FCN":
-        input_shape = (X_train.shape[1], X_train.shape[2])
-    else:
-        input_shape = (X_train.shape[1], X_train.shape[2], X_train.shape[3])
+    
+    input_shape = (X_train.shape[1], X_train.shape[2], X_train.shape[3])
     # Call Classifier ----------------------------------------------------------
     classifier = create_classifier(classifier_name, input_shape, nb_classes, verbose=True)
     # Train Classifier ----------------------------------------------------------
@@ -46,7 +41,7 @@ epochs = 500
 Resample = 1  # Set to '1' for default Train and Test Sets, and '30' for running on all resampling
 # ----------------------------------------------------------------------------------------------------------------------
 
-for problem in datasets:
+for problem in datasets[:1]:
     # Load Data --------------------------------------------------------------------------------------------------------
     output_directory = os.getcwd() + '/Results_' + classifier_name + '/' + problem + '/'
     create_directory(output_directory)
