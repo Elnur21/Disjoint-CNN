@@ -2,8 +2,8 @@ import os
 import numpy as np
 import pandas as pd
 from utils.tools import create_directory
-from sktime.datasets import load_from_tsfile_to_dataframe
-from utils.data_loader import process_ts_data
+from aeon.datasets import load_classification
+print(" Shape of X = ", X.shape)
 
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
@@ -92,13 +92,6 @@ def s_length(train_df, test_df):
         max_seq_len = train_lengths[0, 0]
     return max_seq_len
 # Problem Setting -----------------------------------------------------------------------------------------------------
-'''
-Disjoint CNN :'DCNN_2L', 'DCNN_3L', 'DCNN_4L'
-Temporal CNN : 'T_CNN'  ,  Spatial CNN: 'S_CNN' , Spatial-Temporal CNN : 'ST_CNN' 
-Fully Convolutional Network: 'FCN' , Disjoint FCN : 'D_FCN' , Residual Network: 'ResNet', Disjoint ResNet: 'D_ResNet' 
-Multivariate LSTM-FCN : 'MLSTM_FCN', Multi-Channel Deep CNN: 'MC_CNN'
-'''
-# ----------------------------------------------------------------------------------------------------------------------
 ALL_Results = pd.DataFrame()
 ALL_Results_list = []
 problem_index = 0
@@ -119,65 +112,47 @@ for problem in os.listdir(data_path):
     itr_result = [problem]
     # load --------------------------------------------------------------------------
     # set data folder
-    data_folder = data_path + problem + "/"
-    train_file = data_folder + problem + "_TRAIN.ts"
-    test_file = data_folder + problem + "_TEST.ts"
-    # Load Train and Test using sktime.utils.load_data function
-    X_train, Y_train = load_from_tsfile_to_dataframe(train_file)
-    X_test, Y_test = load_from_tsfile_to_dataframe(test_file)
-    max_length = s_length(X_train, X_test)
-    X_train = process_ts_data(X_train, max_length, normalise=False)
-    X_test = process_ts_data(X_test, max_length,  normalise=False)
+    X_train, Y_train = load_classification("ArticularyWordRecognition",  split="train")
+    X_test, Y_test = load_classification("ArticularyWordRecognition",  split="test")
 
     all_data = np.vstack((X_train, X_test))
     all_labels = np.hstack((Y_train, Y_test))
     all_indices = np.arange(len(all_data))
 
-    for itr in range(0, Resample):
-        sub_output_directory = output_directory + str(itr + 1) + '/'
-        create_directory(sub_output_directory)
-        # Default Train and Test Set
-        if itr == 0:
-            x_train = X_train
-            x_test = X_test
-            y_train = Y_train
-            y_test = Y_test
-        else:
-            training_indices = np.loadtxt("multi_indices/{}_INDICES_TRAIN.txt".format(problem),
-                                          skiprows=itr,
-                                          max_rows=1).astype(np.int32)
-            test_indices = np.loadtxt("multi_indices/{}_INDICES_TEST.txt".format(problem),
-                                      skiprows=itr,
-                                      max_rows=1).astype(np.int32)
-            x_train, y_train = all_data[training_indices, :], all_labels[training_indices]
-            x_test, y_test = all_data[test_indices, :], all_labels[test_indices]
+    sub_output_directory = output_directory + str(1) + '/'
+    create_directory(sub_output_directory)
+    # Default Train and Test Set
+    x_train = X_train
+    x_test = X_test
+    y_train = Y_train
+    y_test = Y_test
+    
+    # Making Consistent with Keras Output -------------------------------------------------
+    all_labels_new = np.concatenate((y_train, y_test), axis=0)
+    print("[Main] All labels: {}".format(np.unique(all_labels_new)))
+    tmp = pd.get_dummies(all_labels_new).values
+    y_train = tmp[:len(y_train)]
+    y_test = tmp[len(y_train):]
 
-        # Making Consistent with Keras Output -------------------------------------------------
-        all_labels_new = np.concatenate((y_train, y_test), axis=0)
-        print("[Main] All labels: {}".format(np.unique(all_labels_new)))
-        tmp = pd.get_dummies(all_labels_new).values
-        y_train = tmp[:len(y_train)]
-        y_test = tmp[len(y_train):]
+    # Making Consistent with Keras Input ---------------------------------------------------
+    if classifier_name == "FCN" or classifier_name == "ResNet" or classifier_name == "MLSTM_FCN":
+        x_train = x_train.reshape(x_train.shape[0], x_train.shape[2], x_train.shape[1])
+        x_test = x_test.reshape(x_test.shape[0], x_test.shape[2], x_test.shape[1])
+    else:
+        x_train = x_train.reshape(x_train.shape[0], x_train.shape[1], x_train.shape[2], 1)
+        x_test = x_test.reshape(x_test.shape[0], x_test.shape[1], x_test.shape[2], 1)
 
-        # Making Consistent with Keras Input ---------------------------------------------------
-        if classifier_name == "FCN" or classifier_name == "ResNet" or classifier_name == "MLSTM_FCN":
-            x_train = x_train.reshape(x_train.shape[0], x_train.shape[2], x_train.shape[1])
-            x_test = x_test.reshape(x_test.shape[0], x_test.shape[2], x_test.shape[1])
-        else:
-            x_train = x_train.reshape(x_train.shape[0], x_train.shape[1], x_train.shape[2], 1)
-            x_test = x_test.reshape(x_test.shape[0], x_test.shape[1], x_test.shape[2], 1)
-
-        # classifier-----------------------------------------------------------------
-        # Dynamic Batch-size base on Data
-        if problem == 'EigenWorms' or problem == 'DuckDuck':
-            batch_size = 1
-        else:
-            # batch_size = np.ceil(x_train.shape[0] / (8 * (np.max(y_train.shape[1]) + 1)))
-            batch_size = 8
-            
-        val_index = np.random.randint(0, np.int(x_train.shape[0]), np.int(x_train.shape[0] / 10), dtype=int)
-        x_val = x_train[val_index, :]
-        y_val = y_train[val_index, :]
+    # classifier-----------------------------------------------------------------
+    # Dynamic Batch-size base on Data
+    if problem == 'EigenWorms' or problem == 'DuckDuck':
+        batch_size = 1
+    else:
+        # batch_size = np.ceil(x_train.shape[0] / (8 * (np.max(y_train.shape[1]) + 1)))
+        batch_size = 8
+        
+    val_index = np.random.randint(0, np.int(x_train.shape[0]), np.int(x_train.shape[0] / 10), dtype=int)
+    x_val = x_train[val_index, :]
+    y_val = y_train[val_index, :]
 
     classifier = fit_classifier(all_labels_new, x_train, y_train, x_val, y_val, epochs, batch_size)
     metrics_test, conf_mat = classifier.predict(x_test, y_test, best=True)

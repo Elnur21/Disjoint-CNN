@@ -1,6 +1,6 @@
 import time
 from tensorflow import keras
-from tensorflow.keras.layers import Input, Conv2D,SeparableConv2D, BatchNormalization, ELU, Reshape, Permute, MaxPooling2D
+from tensorflow.keras.layers import Input, Conv2D, BatchNormalization, ELU, Permute, MaxPooling2D
 from classifiers.classifiers import predict_model
 from utils.classifier_tools import create_class_weight
 from utils.tools import save_logs
@@ -17,7 +17,7 @@ class Classifier_Disjoint_CNN:
         # -----------------------------------------------------------------------
         if verbose:
             self.model.summary()
-        self.model.save_weights(self.output_directory + 'model_init.h5')
+        self.model.save_weights(self.output_directory + 'model_init.hd5')
 
     def build_model(self, input_shape, nb_classes):
 
