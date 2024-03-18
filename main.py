@@ -30,53 +30,9 @@ def fit_classifier(all_labels, X_train, y_train, X_val=None, y_val=None, epochs=
 
 
 def create_classifier(classifier_name, input_shape, nb_classes, verbose=False):
-
-    # Networks ------------------------------------------------------------------------------
-    if classifier_name == "T_CNN":
-        from classifiers import T_CNN
-        return T_CNN.Classifier_T_CNN(sub_output_directory, input_shape, nb_classes, verbose)
-    if classifier_name == "S_CNN":
-        from classifiers import S_CNN
-        return S_CNN.Classifier_S_CNN(sub_output_directory, input_shape, nb_classes, verbose)
-    if classifier_name == "ST_CNN":
-        from classifiers import ST_CNN
-        return ST_CNN.Classifier_ST_CNN(sub_output_directory, input_shape, nb_classes, verbose)
-
-    if classifier_name == "DCNN_2L":
-        from classifiers import DCNN_2L
-        return DCNN_2L.Classifier_DCNN_2L(sub_output_directory, input_shape, nb_classes, verbose)
-    if classifier_name == "DCNN_3L":
-        from classifiers import DCNN_3L
-        return DCNN_3L.Classifier_DCNN_3L(sub_output_directory, input_shape, nb_classes, verbose)
-    if classifier_name == "DCNN_4L":
-        from classifiers import DCNN_4L
-        return DCNN_4L.Classifier_DCNN_4L(sub_output_directory, input_shape, nb_classes, verbose)
-    
-    # ------------------------------------------------------------------------------------------------------------------
-    # Component Analysis -----------------------------------------------------------------------------------------------
-    if classifier_name == "FCN":
-        from classifiers import FCN
-        return FCN.Classifier_FCN(sub_output_directory, input_shape, nb_classes, verbose)
-    if classifier_name == "D_FCN":
-        from classifiers import D_FCN
-        return D_FCN.Classifier_D_FCN(sub_output_directory, input_shape, nb_classes, verbose)
-
-    if classifier_name == "ResNet":
-        from classifiers import ResNet
-        return ResNet.Classifier_ResNet(sub_output_directory, input_shape, nb_classes, verbose)
-    if classifier_name == "D_ResNet":
-        from classifiers import D_ResNet
-        return D_ResNet.Classifier_D_ResNet(sub_output_directory, input_shape, nb_classes, verbose)
-
-    if classifier_name == "MC_CNN":
-        from classifiers import MC_CNN
-        return MC_CNN.Classifier_MC_CNN(sub_output_directory, input_shape, nb_classes, verbose)
-    if classifier_name == "MLSTM_FCN":
-        from classifiers import MLSTM_FCN
-        return MLSTM_FCN.Classifier_MLSTM_FCN(sub_output_directory, input_shape, nb_classes, verbose)
-    elif classifier_name == "lstm_dcnn":
-        from classifiers import lstm_dcnn
-        return lstm_dcnn.Classifier_LSTM_DCNN(sub_output_directory, input_shape, nb_classes, verbose)
+    if classifier_name == "Disjoint_CNN":
+        from classifiers import Disjoint_CNN
+        return Disjoint_CNN.Classifier_Disjoint_CNN(sub_output_directory, input_shape, nb_classes, verbose)
 
 
 # Problem Setting -----------------------------------------------------------------------------------------------------
@@ -85,13 +41,12 @@ ALL_Results_list = []
 problem_index = 0
 data_path = os.getcwd() + '/multivariate_ts/'
 # Hyper-Parameter Setting ----------------------------------------------------------------------------------------------
-classifier_name = "DCNN_2L"  # Choose the classifier name from aforementioned List
+classifier_name = "Disjoint_CNN"  # Choose the classifier name from aforementioned List
 epochs = 500
 Resample = 1  # Set to '1' for default Train and Test Sets, and '30' for running on all resampling
 # ----------------------------------------------------------------------------------------------------------------------
-# ----------------------------------------------------------------------------------------------------------------------
 
-for problem in datasets[:5]:
+for problem in datasets:
     # Load Data --------------------------------------------------------------------------------------------------------
     output_directory = os.getcwd() + '/Results_' + classifier_name + '/' + problem + '/'
     create_directory(output_directory)
@@ -131,7 +86,7 @@ for problem in datasets[:5]:
 
     # classifier-----------------------------------------------------------------
     # Dynamic Batch-size base on Data
-    if problem == 'EigenWorms' or problem == 'DuckDuck':
+    if 'EigenWorms' in problem or 'DuckDuck' in problem:
         batch_size = 1
     else:
         # batch_size = np.ceil(x_train.shape[0] / (8 * (np.max(y_train.shape[1]) + 1)))
@@ -148,7 +103,7 @@ for problem in datasets[:5]:
     metrics_test['train/val/test/test2'] = 'test'
     metrics_test2['train/val/test/test2'] = 'test2'
     metrics = pd.concat([metrics_test, metrics_test2]).reset_index(drop=True)
-
+    
     print("[Main] Problem: {}".format(problem))
     print(metrics.head())
 
