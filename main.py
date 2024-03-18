@@ -1,9 +1,10 @@
 import os
 import numpy as np
 import pandas as pd
-from utils.tools import create_directory
 from aeon.datasets import load_classification
-print(" Shape of X = ", X.shape)
+
+from utils.tools import create_directory
+from utils.constants import datasets
 
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
@@ -78,19 +79,6 @@ def create_classifier(classifier_name, input_shape, nb_classes, verbose=False):
         return lstm_dcnn.Classifier_LSTM_DCNN(sub_output_directory, input_shape, nb_classes, verbose)
 
 
-def s_length(train_df, test_df):
-    train_lengths = train_df.applymap(lambda x: len(x)).values
-    test_lengths = test_df.applymap(lambda x: len(x)).values
-
-    train_vert_diffs = np.abs(train_lengths - np.expand_dims(train_lengths[0, :], 0))
-
-    if np.sum(train_vert_diffs) > 0:  # if any column (dimension) has varying length across samples
-        train_max_seq_len = int(np.max(train_lengths[:, 0]))
-        test_max_seq_len = int(np.max(test_lengths[:, 0]))
-        max_seq_len = np.max([train_max_seq_len, test_max_seq_len])
-    else:
-        max_seq_len = train_lengths[0, 0]
-    return max_seq_len
 # Problem Setting -----------------------------------------------------------------------------------------------------
 ALL_Results = pd.DataFrame()
 ALL_Results_list = []
@@ -103,17 +91,16 @@ Resample = 1  # Set to '1' for default Train and Test Sets, and '30' for running
 # ----------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
 
-for problem in os.listdir(data_path):
+for problem in datasets[:5]:
     # Load Data --------------------------------------------------------------------------------------------------------
-    output_directory = os.getcwd() + '/Results_'
-    output_directory = output_directory + classifier_name + '/' + problem + '/'
+    output_directory = os.getcwd() + '/Results_' + classifier_name + '/' + problem + '/'
     create_directory(output_directory)
     print("[Main] Problem: {}".format(problem))
     itr_result = [problem]
     # load --------------------------------------------------------------------------
     # set data folder
-    X_train, Y_train = load_classification("ArticularyWordRecognition",  split="train")
-    X_test, Y_test = load_classification("ArticularyWordRecognition",  split="test")
+    X_train, Y_train = load_classification(problem,  split="train")
+    X_test, Y_test = load_classification(problem,  split="test")
 
     all_data = np.vstack((X_train, X_test))
     all_labels = np.hstack((Y_train, Y_test))
