@@ -35,12 +35,21 @@ class Classifier_Disjoint_CNN:
         conv1 = BatchNormalization()(conv1)
         conv1 = ELU(alpha=1.0)(conv1)
 
+        # # Temporal Convolutions
+        # conv2 = Conv1D(64, kernel_size=5, strides=1, padding='same')(conv1)
+        # conv2 = BatchNormalization()(conv2)
+        # conv2 = ELU(alpha=1.0)(conv2)
+        # # Spatial Convolutions
+        # conv2 = Conv1D(64, kernel_size=conv2.shape[2], strides=1, padding='same')(conv2)
+        # conv2 = BatchNormalization()(conv2)
+        # conv2 = ELU(alpha=1.0)(conv2)
+
         # Temporal Convolutions
-        conv2 = Conv1D(64, kernel_size=5, strides=1, padding='same')(conv1)
+        conv2 = DepthwiseConv1D(kernel_size=5, strides=1, padding='same', name="depth2")(conv1)
         conv2 = BatchNormalization()(conv2)
         conv2 = ELU(alpha=1.0)(conv2)
         # Spatial Convolutions
-        conv2 = Conv1D(64, kernel_size=conv2.shape[2], strides=1, padding='same')(conv2)
+        conv2 = SeparableConv1D(64, kernel_size=conv2.shape[2], strides=1, padding='same', depthwise_initializer='glorot_uniform', name="sept2")(conv2)
         conv2 = BatchNormalization()(conv2)
         conv2 = ELU(alpha=1.0)(conv2)
 
@@ -66,8 +75,11 @@ class Classifier_Disjoint_CNN:
         max_pool = MaxPooling1D(pool_size=5, strides=None, padding='valid')(conv4)
         gap = GlobalAveragePooling1D()(max_pool)
 
+        # Flatten layer
+        flatten = Flatten()(gap)
+
         # Dense layers
-        dense1 = Dense(128, activation="relu")(gap)
+        dense1 = Dense(128, activation="relu")(flatten)
         output_layer = Dense(nb_classes, activation='softmax')(dense1)
 
         # Create model
@@ -77,7 +89,7 @@ class Classifier_Disjoint_CNN:
 
     def fit(self, Ximg_train, yimg_train, Ximg_val, yimg_val, epochs, batch_size):
         if self.verbose:
-            print('[Disjoint_CNN] Training Disjoint_CNN Classifier')
+            print('[Disjoint_CNN] Training Custom_Disjoint_CNN Classifier')
 
         mini_batch_size = int(min(Ximg_train.shape[0] / 10, batch_size))
         self.model.compile(loss='categorical_crossentropy', optimizer=keras.optimizers.Adam(), metrics=['accuracy'])
@@ -97,16 +109,7 @@ class Classifier_Disjoint_CNN:
                                    batch_size=mini_batch_size,
                                    callbacks=self.callbacks)
         self.duration = time.time() - start_time
-        '''
-        self.hist = self.model.fit(Ximg_train, yimg_train,
-                                   validation_split=0.1,
-                                   class_weight=class_weight,
-                                   verbose=self.verbose,
-                                   epochs=epochs,
-                                   batch_size=mini_batch_size,
-                                   callbacks=self.callbacks)
-        self.duration = time.time() - start_time
-        '''
+
         keras.models.save_model(self.model, self.output_directory + 'model.keras')
         print('[Disjoint_CNN] Training done!, took {}s'.format(self.duration))
 

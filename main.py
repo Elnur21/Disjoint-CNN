@@ -2,6 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 from aeon.datasets import load_classification
+import warnings
 
 from utils.tools import create_directory
 from utils.constants import datasets
@@ -9,6 +10,7 @@ from utils.constants import datasets
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
 
+warnings.filterwarnings("ignore")
 
 def fit_classifier(all_labels, X_train, y_train, X_val=None, y_val=None, epochs=10, batch_size=16):
     nb_classes = len(np.unique(all_labels))
