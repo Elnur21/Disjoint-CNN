@@ -62,7 +62,7 @@ class Classifier_Disjoint_CNN:
         conv4 = BatchNormalization()(conv4)
         conv4 = ELU(alpha=1.0)(conv4)
 
-        # Pooling and Flatten
+        # Pooling layers
         max_pool = MaxPooling1D(pool_size=5, strides=None, padding='valid')(conv4)
         gap = GlobalAveragePooling1D()(max_pool)
 
