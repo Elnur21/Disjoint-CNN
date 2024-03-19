@@ -28,8 +28,8 @@ def fit_classifier(all_labels, X_train, y_train, X_val=None, y_val=None, epochs=
 
 def create_classifier(classifier_name, input_shape, nb_classes, verbose=False):
     if classifier_name == "Disjoint_CNN":
-        from classifiers import Custom_Disjoint_CNN
-        return Custom_Disjoint_CNN.Classifier_Disjoint_CNN(sub_output_directory, input_shape, nb_classes, verbose)
+        from classifiers import Disjoint_CNN
+        return Disjoint_CNN.Classifier_Disjoint_CNN(sub_output_directory, input_shape, nb_classes, verbose)
 
 
 # Problem Setting -----------------------------------------------------------------------------------------------------
@@ -44,7 +44,7 @@ Resample = 1  # Set to '1' for default Train and Test Sets, and '30' for running
 # ----------------------------------------------------------------------------------------------------------------------
 for problem in datasets:
     # Load Data --------------------------------------------------------------------------------------------------------
-    output_directory = os.getcwd() + '/Results_Custom_' + classifier_name + '/' + problem + '/'
+    output_directory = os.getcwd() + '/Results_' + classifier_name + '/' + problem + '/'
     create_directory(output_directory)
     print("[Main] Problem: {}".format(problem))
     itr_result = [problem]
@@ -72,7 +72,7 @@ for problem in datasets:
             std_ = x_test[0].std(axis=1, keepdims=True)
             std_[std_ == 0] = 1.0
             x_test[0] = (x_test[0] - x_test[0].mean(axis=1, keepdims=True)) / std_
-            
+
         X_train=x_train.reshape(X_train.shape)
         X_test=x_test.reshape(X_test.shape)
 
@@ -134,4 +134,4 @@ for problem in datasets:
     problem_index = problem_index + 1
 
 ALL_Results = pd.DataFrame(ALL_Results_list)
-ALL_Results.to_csv(os.getcwd() + '/Results_Custom_' + classifier_name + '/'+'All_results1.csv')
+ALL_Results.to_csv(os.getcwd() + '/Results_' + classifier_name + '/'+'All_results1.csv')
