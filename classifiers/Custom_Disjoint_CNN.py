@@ -1,6 +1,6 @@
 import time
 from tensorflow import keras
-from tensorflow.keras.layers import Input,SeparableConv1D,DepthwiseConv1D, Flatten,Dense, Conv1D,Reshape, BatchNormalization, ELU, Permute, MaxPooling1D
+from tensorflow.keras.layers import GlobalAveragePooling1D, Input,SeparableConv1D,DepthwiseConv1D, Flatten,Dense, Conv1D,Reshape, BatchNormalization, ELU, Permute, MaxPooling1D
 from classifiers.classifiers import predict_model
 from utils.classifier_tools import create_class_weight
 from utils.tools import save_logs
@@ -64,10 +64,10 @@ class Classifier_Disjoint_CNN:
 
         # Pooling and Flatten
         max_pool = MaxPooling1D(pool_size=5, strides=None, padding='valid')(conv4)
-        flat = Flatten()(max_pool)
+        gap = GlobalAveragePooling1D()(max_pool)
 
         # Dense layers
-        dense1 = Dense(128, activation="relu")(flat)
+        dense1 = Dense(128, activation="relu")(gap)
         output_layer = Dense(nb_classes, activation='softmax')(dense1)
 
         # Create model
