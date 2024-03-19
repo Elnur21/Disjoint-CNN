@@ -35,15 +35,6 @@ class Classifier_Disjoint_CNN:
         conv1 = BatchNormalization()(conv1)
         conv1 = ELU(alpha=1.0)(conv1)
 
-        # # Temporal Convolutions
-        # conv2 = Conv1D(64, kernel_size=5, strides=1, padding='same')(conv1)
-        # conv2 = BatchNormalization()(conv2)
-        # conv2 = ELU(alpha=1.0)(conv2)
-        # # Spatial Convolutions
-        # conv2 = Conv1D(64, kernel_size=conv2.shape[2], strides=1, padding='same')(conv2)
-        # conv2 = BatchNormalization()(conv2)
-        # conv2 = ELU(alpha=1.0)(conv2)
-
         # Temporal Convolutions
         conv2 = DepthwiseConv1D(kernel_size=5, strides=1, padding='same', name="depth2")(conv1)
         conv2 = BatchNormalization()(conv2)
@@ -54,11 +45,11 @@ class Classifier_Disjoint_CNN:
         conv2 = ELU(alpha=1.0)(conv2)
 
         # Temporal Convolutions
-        conv3 = Conv1D(64, kernel_size=5, strides=1, padding='same')(conv2)
+        conv3 = DepthwiseConv1D(kernel_size=5, strides=1, padding='same', name="depth3")(conv2)
         conv3 = BatchNormalization()(conv3)
         conv3 = ELU(alpha=1.0)(conv3)
         # Spatial Convolutions
-        conv3 = Conv1D(64, kernel_size=conv3.shape[2], strides=1, padding='same')(conv3)
+        conv3 = SeparableConv1D(64, kernel_size=conv3.shape[2], strides=1, padding='same', depthwise_initializer='glorot_uniform', name="sept3")(conv3)
         conv3 = BatchNormalization()(conv3)
         conv3 = ELU(alpha=1.0)(conv3)
 
