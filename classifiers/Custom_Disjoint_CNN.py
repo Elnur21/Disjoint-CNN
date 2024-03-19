@@ -63,11 +63,11 @@ class Classifier_Disjoint_CNN:
         conv4 = ELU(alpha=1.0)(conv4)
 
         # Temporal Convolutions
-        conv4 = DepthwiseConv1D(kernel_size=5, strides=1, padding='same', name="depth3")(conv3)
+        conv4 = DepthwiseConv1D(kernel_size=5, strides=1, padding='same', name="depth4")(conv3)
         conv4 = BatchNormalization()(conv4)
         conv4 = ELU(alpha=1.0)(conv4)
         # Spatial Convolutions
-        conv4 = SeparableConv1D(64, kernel_size=conv4.shape[2], strides=1, padding='same', depthwise_initializer='glorot_uniform', name="sept3")(conv4)
+        conv4 = SeparableConv1D(64, kernel_size=conv4.shape[2], strides=1, padding='same', depthwise_initializer='glorot_uniform', name="sept4")(conv4)
         conv4 = BatchNormalization()(conv4)
         conv4 = ELU(alpha=1.0)(conv4)
 
