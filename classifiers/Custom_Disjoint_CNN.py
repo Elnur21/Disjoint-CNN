@@ -1,6 +1,6 @@
 import time
 from tensorflow import keras
-from tensorflow.keras.layers import GlobalAveragePooling1D, Input,SeparableConv1D,DepthwiseConv1D, Flatten,Dense, Conv1D,Reshape, BatchNormalization, ELU, Permute, MaxPooling1D
+from tensorflow.keras.layers import GlobalAveragePooling1D, Input,SeparableConv1D,DepthwiseConv1D, Flatten,Dense,Reshape, BatchNormalization, ELU, Permute, MaxPooling1D
 from classifiers.classifiers import predict_model
 from utils.classifier_tools import create_class_weight
 from utils.tools import save_logs
@@ -21,7 +21,6 @@ class Classifier_Disjoint_CNN:
 
     def build_model(self, input_shape, nb_classes):
         X_input = Input(shape=input_shape[:2])
-        print(input_shape)
         # Reshape input to make it suitable for 1D convolutions
         X_reshaped = Permute((2, 1))(X_input)  # Swap dimensions to convert from (batch_size, height, width) to (batch_size, width, height)
         X_reshaped = Reshape((input_shape[1], input_shape[0]))(X_reshaped)  # Reshape to (batch_size, width, height)
@@ -52,15 +51,6 @@ class Classifier_Disjoint_CNN:
         conv3 = SeparableConv1D(64, kernel_size=conv3.shape[2], strides=1, padding='same', depthwise_initializer='glorot_uniform', name="sept3")(conv3)
         conv3 = BatchNormalization()(conv3)
         conv3 = ELU(alpha=1.0)(conv3)
-
-        # Temporal Convolutions
-        conv4 = Conv1D(64, kernel_size=3, strides=1, padding='same')(conv3)
-        conv4 = BatchNormalization()(conv4)
-        conv4 = ELU(alpha=1.0)(conv4)
-        # Spatial Convolutions
-        conv4 = Conv1D(64, kernel_size=conv4.shape[2], strides=1, padding='same')(conv4)
-        conv4 = BatchNormalization()(conv4)
-        conv4 = ELU(alpha=1.0)(conv4)
 
         # Temporal Convolutions
         conv4 = DepthwiseConv1D(kernel_size=5, strides=1, padding='same', name="depth4")(conv3)
