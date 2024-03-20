@@ -1,4 +1,4 @@
-absl-py==1.4.0
+absl-py==2.1.0
 aeon==0.7.1
 astunparse==1.6.3
 cachetools==5.3.1
