@@ -4,7 +4,7 @@ astunparse==1.6.3
 cachetools==5.3.3
 certifi==2024.2.2
 charset-normalizer==3.3.2
-contourpy==1.2.0
+contourpy==1.2.1
 cycler==0.12.1
 flatbuffers==24.3.25
 fonttools==4.50.0
