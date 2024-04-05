@@ -1,5 +1,5 @@
 absl-py==2.1.0
-aeon==0.7.1
+aeon==0.8.0
 astunparse==1.6.3
 cachetools==5.3.3
 certifi==2024.2.2
