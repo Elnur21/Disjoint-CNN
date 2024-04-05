@@ -62,7 +62,7 @@ class Classifier_Disjoint_CNN:
         conv4 = BatchNormalization()(conv4)
         conv4 = ELU(alpha=1.0)(conv4)
 
-        MaxPool = MaxPooling2D(pool_size=(5, 1), strides=None, padding='valid')(conv4)
+        MaxPool = MaxPooling2D(pool_size=(5, 1), strides=None, padding='same')(conv4)
         gap_DCNN = keras.layers.GlobalAveragePooling2D()(MaxPool)
 
         dense = keras.layers.Dense(128, activation="relu")(gap_DCNN)
@@ -87,7 +87,7 @@ class Classifier_Disjoint_CNN:
         self.hist = self.model.fit(Ximg_train, yimg_train,
                                    validation_data=[Ximg_val, yimg_val],
                                    class_weight=class_weight,
-                                   verbose=0,
+                                   verbose=True,
                                    epochs=epochs,
                                    batch_size=mini_batch_size,
                                    callbacks=self.callbacks)
