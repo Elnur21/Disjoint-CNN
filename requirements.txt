@@ -56,7 +56,7 @@ tensorflow-estimator==2.15.0
 tensorflow-io-gcs-filesystem==0.32.0
 termcolor==2.4.0
 tf-estimator-nightly==2.16.0.dev2024012409
-threadpoolctl==3.4.0
+threadpoolctl==3.5.0
 typing_extensions==4.11.0
 tzdata==2024.1
 urllib3==2.2.1
